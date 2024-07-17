@@ -3,6 +3,7 @@ import http from 'http';
 import { Server as SocketServer } from 'socket.io';
 import cors from 'cors';
 
+import passport from '../middlewares/passport.js';
 import Sockets from './sockets.js';
 import { dbConnection } from './database.js';
 
@@ -20,11 +21,11 @@ export class Server {
 
     async middlewares() {
         this.app.use( cors() );
-
         this.app.use( express.json() );
+        this.app.use(passport.initialize());
 
-        const loginController = await import('../controllers/auth/login.js');
-
+        const loginController = await import('../controllers/auth/index.js');
+        
         this.app.use( '/api/auth', loginController.default );
     }
 

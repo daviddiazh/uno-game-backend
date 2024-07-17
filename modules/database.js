@@ -7,8 +7,6 @@ export const dbConnection = async() => {
             useUnifiedTopology: true,
             dbName: 'uno-game',
         });
-
-        console.log('DB online');
     } catch (error) {
         console.log(error);
         throw new Error('Error en la base de datos');
