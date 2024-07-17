@@ -12,7 +12,7 @@ router.post('/login',
         try {
             const response = await new AuthService().login(req.body);
 
-            res.json(response);
+            res.status(response.code ?? 200).json(response);
         } catch (error) {
             next(error);
         }
@@ -30,6 +30,18 @@ router.post('/enrollment',
     async (req, res, next) => {
         try {
             const response = await new AuthService().enrollment(req.body);
+            res.status(response.code ?? 200).json(response);
+        } catch (error) {
+            next(error)
+        }
+    }
+);
+
+router.post('/find-users',
+    async (req, res, next) => {
+        try {
+            const filter = req.body;
+            const response = await new AuthService().findUsers(filter?.name);
             res.status(200).json(response);
         } catch (error) {
             next(error)

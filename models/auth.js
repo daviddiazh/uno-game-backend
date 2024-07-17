@@ -5,7 +5,7 @@ const schema = new mongoose.Schema({
     avatar: { type: String, required: true, trim: true },
     email: { type: String, required: true, trim: true, unique: true },
     password: { type: String, required: true, trim: true },
-    isLogged: { type: Boolean, required: false, default: true },
+    online: { type: Boolean, required: false, default: false },
 }, { timestamps: true, versionKey: false });
 
 const authSchema = mongoose.model('Auth', schema);

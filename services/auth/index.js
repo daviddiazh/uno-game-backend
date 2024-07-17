@@ -10,18 +10,17 @@ export class AuthService {
     }
   
     async login(payload) {
-      const responseEntity = new ResponseEntity({
-        code: 401,
-        title: 'Error al iniciar sesión',
-        description: 'Revisa los datos por favor',
-      });
-  
       try {
         const { email, password: passwordReq } = payload;
   
         const user = await this.db.findOne({ email: email.toLowerCase() });
   
-        if (!user) throw new Error(responseEntity);
+        if (!user) {
+            return {
+                code: 401,
+                message: 'Error al iniciar sesión',
+            };
+        }
   
         const isMatchPasswords = await this.hashService.compare(
           passwordReq,
@@ -29,32 +28,34 @@ export class AuthService {
         );
   
         if (!isMatchPasswords) {
-          throw new Error(responseEntity);
+            return {
+                code: 401,
+                message: 'Error al iniciar sesión',
+            };
         }
   
-        delete user.password;
-  
         return {
-          user,
+          user: {
+            ...user['_doc'],
+            password: null,
+          },
           token: this.jwtService.sign({ _id: user?._id + '' }, process.env.JWT_KEY),
         };
       } catch (error) {
-        throw new Error(responseEntity);
+        throw error;
       }
     }
 
     async enrollment(payload) {
-        const responseEntity = new ResponseEntity({
-            code: 401,
-            title: 'Error al iniciar sesión',
-            description: 'Revisa los datos por favor',
-        });
         try {
             const user = await this.db.findOne({
                 email: payload.email.toLowerCase(),
             });
         
-            if (user) throw new Error(responseEntity);
+            if (user) return {
+                code: 400,
+                message: 'Error al crear el usuario',
+            };
         
             const passwordEncrypted = await this.hashService.hash(payload.password, 10);
         
@@ -68,17 +69,23 @@ export class AuthService {
                 enrolled: true,
             };
         } catch (error) {
-            throw new Error(responseEntity);
+            throw error;
         }
     }
-}
 
-export class ResponseEntity {
-    constructor({ code, title, description, }) {
-      this.error = {
-        code,
-        title,
-        description,
-      };
+    async updateUserLogged( uid, newStatus ) {
+        try {
+            await this.db.findByIdAndUpdate(uid, {online: newStatus});
+        } catch (error) {
+            throw new Error('Error al actualizar la conexión del usuario');
+        }
+    }
+
+    async findUsers( name ) {
+        if (name) {
+            return await this.db.find({name});
+        }
+
+        return await this.db.find();
     }
 }
