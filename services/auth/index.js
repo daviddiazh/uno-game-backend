@@ -40,7 +40,7 @@ export class AuthService {
             ...user['_doc'],
             password: null,
           },
-          token: this.jwtService.sign({ _id: user?._id + '' }, process.env.JWT_KEY),
+          token: this.jwtService.sign({ _id: user?._id + '' }, process.env.JWT_KEY, {expiresIn: '4h'}),
         };
       } catch (error) {
         throw error;
