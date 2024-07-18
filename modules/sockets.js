@@ -11,14 +11,13 @@ class Sockets {
 
     socketEvents() {
         this.io.on('connection', async( socket ) => {
-            const { valid, _id } = verifyJwt( socket.handshake.query['x-token']  );
+            const { valid, _id } = await verifyJwt( socket.handshake.query['token']  );
 
             if ( !valid ) {
-                console.log('socket no identificado');
                 return socket.disconnect();
-            }
+            };
 
-            await new AuthService().updateUserLogged( _id, newStatus );
+            await new AuthService().updateUserLogged( _id, true );
 
             // Unir al usuario a una sala de socket.io
             socket.join( _id );
@@ -33,7 +32,7 @@ class Sockets {
             });
             
             socket.on('disconnect', async() => {
-                await new AuthService().updateUserLogged( _id, newStatus );
+                await new AuthService().updateUserLogged( _id, false );
                 // this.io.emit( 'lista-usuarios', await /* method here */ );
             });
         });
