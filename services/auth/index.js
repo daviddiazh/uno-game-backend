@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import authSchema from '../../models/auth.js';
+import { verifyJwt } from '../../middlewares/verify-jwt.js';
 
 export class AuthService {
     constructor() {
@@ -73,9 +74,9 @@ export class AuthService {
         }
     }
 
-    async updateUserLogged( uid, newStatus ) {
+    async updateUserLogged( _id, newStatus ) {
         try {
-            await this.db.findByIdAndUpdate(uid, {online: newStatus});
+            await this.db.findByIdAndUpdate(_id, {online: newStatus});
         } catch (error) {
             throw new Error('Error al actualizar la conexión del usuario');
         }
@@ -87,5 +88,17 @@ export class AuthService {
         }
 
         return await this.db.find();
+    }
+
+    async validateToken( token= '' ) {
+        const { _id } = await verifyJwt(token);
+        
+        if ( _id ) {
+            const user = await this.db.findById(_id);
+            return {
+                ...user['_doc'],
+                password: null,
+            }
+        }
     }
 }

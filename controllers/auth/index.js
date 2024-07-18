@@ -49,4 +49,17 @@ router.post('/find-users',
     }
 );
 
+router.get('/validate-token',
+    async (req, res, next) => {
+        try {
+            const token = req.headers['token'];
+            const response = await new AuthService().validateToken(token);
+            console.log({ response })
+            res.status(200).json(response?._id ? response : { code: 401 });
+        } catch (error) {
+            next(error)
+        }
+    }
+);
+
 export default router;

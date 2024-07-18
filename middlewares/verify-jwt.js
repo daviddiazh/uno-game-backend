@@ -1,14 +1,13 @@
 import jwt from 'jsonwebtoken';
 
-export const verifyJwt = ( token = '' ) => {
+export const verifyJwt = async ( token = '' ) => {
 
     try {
-        const { uid } = jwt.verify( token, process.env.JWT_KEY );
+        const { _id } = await jwt.verify( token, process.env.JWT_KEY );
 
-        return { valid: true, uid };
-
+        return { valid: true, _id };
     } catch (error) {
-        return { valid: false, uid: null };
+        return { valid: false, _id: null };
     }
 
 }

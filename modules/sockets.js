@@ -1,4 +1,5 @@
 import { AuthService } from "../services/auth/index.js";
+import { verifyJwt } from '../middlewares/verify-jwt.js';
 
 class Sockets {
     constructor( io ) {
@@ -10,17 +11,17 @@ class Sockets {
 
     socketEvents() {
         this.io.on('connection', async( socket ) => {
-            const { valid, uid } = verifyJwt( socket.handshake.query['x-token']  );
+            const { valid, _id } = verifyJwt( socket.handshake.query['x-token']  );
 
             if ( !valid ) {
                 console.log('socket no identificado');
                 return socket.disconnect();
             }
 
-            await new AuthService().updateUserLogged( uid, newStatus );
+            await new AuthService().updateUserLogged( _id, newStatus );
 
             // Unir al usuario a una sala de socket.io
-            socket.join( uid );
+            socket.join( _id );
 
             // TODO: Emitir todos los usuarios conectados
             // this.io.emit( 'lista-usuarios', await /* method here */ );
@@ -32,7 +33,7 @@ class Sockets {
             });
             
             socket.on('disconnect', async() => {
-                await new AuthService().updateUserLogged( uid, newStatus );
+                await new AuthService().updateUserLogged( _id, newStatus );
                 // this.io.emit( 'lista-usuarios', await /* method here */ );
             });
         });
