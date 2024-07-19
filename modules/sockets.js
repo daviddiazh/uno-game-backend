@@ -23,7 +23,7 @@ class Sockets {
             socket.join( _id );
 
             // TODO: Emitir todos los usuarios conectados
-            // this.io.emit( 'lista-usuarios', await /* method here */ );
+            // this.io.emit( 'get-friends-list', await /* method here */ );
 
             socket.on( 'mensaje-personal', async( payload ) => {
                 // const mensaje = await grabarMensaje( payload );

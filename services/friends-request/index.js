@@ -1,4 +1,4 @@
-import friendsRequestSchema from '../../models/friendsRequest';
+import friendsRequestSchema from '../../models/friendsRequest.js';
 
 export class FriendsRequestService {
     constructor() {
@@ -8,6 +8,15 @@ export class FriendsRequestService {
     async friendRequest(payload) {
       try {
         const { userIdFrom, userIdTo } = payload;
+
+        const findRequest = await this.db.findOne({ userIdFrom, userIdTo });
+
+        if (findRequest) {
+          return {
+            code: 400,
+            message: 'Ya envíaste la solicitud a ese usuario',
+          }
+        }
   
         await this.db.create({ userIdFrom, userIdTo });
       } catch (error) {
@@ -20,9 +29,9 @@ export class FriendsRequestService {
 
     async requestSended(payload) {
         try {
-          const { userIdFrom } = payload;
+          const { userId } = payload;
     
-          await this.db.find({ userIdFrom });
+          return await this.db.find({ userIdFrom: userId }).populate('userIdTo');
         } catch (error) {
             return {
               code: 404,
@@ -33,9 +42,9 @@ export class FriendsRequestService {
 
     async requestReceived(payload) {
         try {
-          const { userIdTo } = payload;
+          const { userId } = payload;
     
-          await this.db.find({ userIdTo });
+          return await this.db.find({ userIdTo: userId }).populate('userIdFrom');
         } catch (error) {
             return {
               code: 400,
