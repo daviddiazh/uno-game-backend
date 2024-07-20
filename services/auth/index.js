@@ -1,5 +1,6 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import mongoose from 'mongoose';
 import authSchema from '../../models/auth.js';
 import { verifyJwt } from '../../middlewares/verify-jwt.js';
 
@@ -82,12 +83,66 @@ export class AuthService {
         }
     }
 
-    async findUsers( name ) {
-        if (name) {
-            return await this.db.find({name});
+    async findUsers( userIdFrom, nameUserTo ) {
+        if (userIdFrom) {
+            const resp = await this.db.aggregate([
+                {
+                    $lookup: {
+                        from: "friendsrequests",
+                        as: "sended",
+                        let: {
+                            userIdTo: '$_id',
+                        },
+
+                        pipeline: [
+                            {
+                                $match: {
+                                    $expr: {
+                                        $and: [{
+                                            $eq: ["$userIdTo", "$$userIdTo"],
+                                        }]
+                                    },
+                                    userIdFrom: new mongoose.Types.ObjectId(userIdFrom),
+                                }
+                            }
+                        ],
+                    },
+
+                },
+                {
+                    $lookup: {
+                        from: "friendsrequests",
+                        as: "received",
+                        let: {
+                            userIdFrom: '$_id',
+                        },
+
+                        pipeline: [
+                            {
+                                $match: {
+                                    $expr: {
+                                        $and: [{
+                                            $eq: ["$userIdFrom", "$$userIdFrom"],
+                                        }]
+                                    },
+                                    userIdTo: new mongoose.Types.ObjectId(userIdFrom),
+                                }
+                            }
+                        ],
+                    },
+                },
+
+                {
+                    $addFields: {
+                      sended: { $gt: [{ $size: "$sended" }, 0] },
+                      received: { $gt: [{ $size: "$received" }, 0] },
+                    }
+                }
+            ]);
+            return resp;
         }
 
-        return await this.db.find();
+        return [];
     }
 
     async validateToken( token= '' ) {

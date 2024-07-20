@@ -40,8 +40,8 @@ router.post('/enrollment',
 router.post('/find-users',
     async (req, res, next) => {
         try {
-            const filter = req.body;
-            const response = await new AuthService().findUsers(filter?.name);
+            const { userIdFrom, nameUserTo } = req.body;
+            const response = await new AuthService().findUsers(userIdFrom, nameUserTo);
             res.status(200).json(response);
         } catch (error) {
             next(error)

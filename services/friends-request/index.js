@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import friendsRequestSchema from '../../models/friendsRequest.js';
 
 export class FriendsRequestService {
@@ -10,11 +11,12 @@ export class FriendsRequestService {
         const { userIdFrom, userIdTo } = payload;
 
         const findRequest = await this.db.findOne({ userIdFrom, userIdTo });
+        const findRequest2 = await this.db.findOne({ userIdFrom: userIdTo, userIdTo: userIdFrom });
 
-        if (findRequest) {
+        if (findRequest || findRequest2) {
           return {
             code: 400,
-            message: 'Ya envíaste la solicitud a ese usuario',
+            message: 'Error al envíar la solicitud de amistad',
           }
         }
   
