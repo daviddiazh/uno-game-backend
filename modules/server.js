@@ -29,6 +29,9 @@ export class Server {
 
         const friendsRequestController = await import('../controllers/friends-request/index.js');
         this.app.use( '/api/friends-request', friendsRequestController.default );
+
+        const friendsController = await import('../controllers/friends/index.js');
+        this.app.use( '/api/friends', friendsController.default );
     }
 
     configureSockets() {

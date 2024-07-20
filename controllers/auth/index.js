@@ -12,7 +12,7 @@ router.post('/login',
         try {
             const response = await new AuthService().login(req.body);
 
-            res.status(response.code ?? 200).json(response);
+            res.status(response?.code ?? 200).json(response);
         } catch (error) {
             next(error);
         }
@@ -30,7 +30,7 @@ router.post('/enrollment',
     async (req, res, next) => {
         try {
             const response = await new AuthService().enrollment(req.body);
-            res.status(response.code ?? 200).json(response);
+            res.status(response?.code ?? 200).json(response);
         } catch (error) {
             next(error)
         }

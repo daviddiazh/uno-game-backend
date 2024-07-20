@@ -129,11 +129,37 @@ export class AuthService {
                         ],
                     },
                 },
+                {
+                    $lookup: {
+                        from: "friends",
+                        as: "isFriend",
+                        let: {
+                            idsToMap: '$_id',
+                        },
+                        pipeline: [
+                            {
+                                $match: {
+                                    // $expr: {
+                                    //     $and: [{
+                                    //         $eq: ["$usersId", "$$usersId"],
+                                    //     }]
+                                    // },
+                                    $expr: {
+                                        $in: ["$$idsToMap", "$usersId"],
+                                    },
+                                    // usersId: new mongoose.Types.ObjectId(userIdFrom),
+                                    // usersId: "$$usersId",
+                                }
+                            }
+                        ],
+                    },
+                },
 
                 {
                     $addFields: {
                       sended: { $gt: [{ $size: "$sended" }, 0] },
                       received: { $gt: [{ $size: "$received" }, 0] },
+                      isFriend: { $gt: [{ $size: "$isFriend" }, 0] },
                     }
                 }
             ]);
