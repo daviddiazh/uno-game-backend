@@ -93,7 +93,6 @@ export class AuthService {
                         let: {
                             userIdTo: '$_id',
                         },
-
                         pipeline: [
                             {
                                 $match: {
@@ -116,7 +115,6 @@ export class AuthService {
                         let: {
                             userIdFrom: '$_id',
                         },
-
                         pipeline: [
                             {
                                 $match: {
@@ -139,8 +137,11 @@ export class AuthService {
                     }
                 }
             ]);
+            if ( nameUserTo ) {
+                return resp.filter(item => item?.name === nameUserTo);
+            }
             return resp;
-        }
+        };
 
         return [];
     }
