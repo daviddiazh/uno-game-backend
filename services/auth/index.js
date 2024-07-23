@@ -83,93 +83,101 @@ export class AuthService {
         }
     }
 
-    async findUsers( userIdFrom, nameUserTo ) {
-        if (userIdFrom) {
-            const resp = await this.db.aggregate([
-                {
-                    $lookup: {
-                        from: "friendsrequests",
-                        as: "sended",
-                        let: {
-                            userIdTo: '$_id',
-                        },
-                        pipeline: [
-                            {
-                                $match: {
-                                    $expr: {
-                                        $and: [{
-                                            $eq: ["$userIdTo", "$$userIdTo"],
-                                        }]
-                                    },
-                                    userIdFrom: new mongoose.Types.ObjectId(userIdFrom),
-                                }
-                            }
-                        ],
-                    },
+    // async findUsers( userIdFrom, nameUserTo ) {
+    //     if (userIdFrom) {
+    //         const resp = await this.db.aggregate([
+    //             {
+    //                 $lookup: {
+    //                     from: "friendsrequests",
+    //                     as: "sended",
+    //                     let: {
+    //                         userIdTo: '$_id',
+    //                     },
+    //                     pipeline: [
+    //                         {
+    //                             $match: {
+    //                                 $expr: {
+    //                                     $and: [{
+    //                                         $eq: ["$userIdTo", "$$userIdTo"],
+    //                                     }]
+    //                                 },
+    //                                 userIdFrom: new mongoose.Types.ObjectId(userIdFrom),
+    //                             }
+    //                         }
+    //                     ],
+    //                 },
 
-                },
-                {
-                    $lookup: {
-                        from: "friendsrequests",
-                        as: "received",
-                        let: {
-                            userIdFrom: '$_id',
-                        },
-                        pipeline: [
-                            {
-                                $match: {
-                                    $expr: {
-                                        $and: [{
-                                            $eq: ["$userIdFrom", "$$userIdFrom"],
-                                        }]
-                                    },
-                                    userIdTo: new mongoose.Types.ObjectId(userIdFrom),
-                                }
-                            }
-                        ],
-                    },
-                },
-                {
-                    $lookup: {
-                        from: "friends",
-                        as: "isFriend",
-                        let: {
-                            idsToMap: '$_id',
-                        },
-                        pipeline: [
-                            {
-                                $match: {
-                                    // $expr: {
-                                    //     $and: [{
-                                    //         $eq: ["$usersId", "$$usersId"],
-                                    //     }]
-                                    // },
-                                    $expr: {
-                                        $in: ["$$idsToMap", "$usersId"],
-                                    },
-                                    // usersId: new mongoose.Types.ObjectId(userIdFrom),
-                                    // usersId: "$$usersId",
-                                }
-                            }
-                        ],
-                    },
-                },
+    //             },
+    //             {
+    //                 $lookup: {
+    //                     from: "friendsrequests",
+    //                     as: "received",
+    //                     let: {
+    //                         userIdFrom: '$_id',
+    //                     },
+    //                     pipeline: [
+    //                         {
+    //                             $match: {
+    //                                 $expr: {
+    //                                     $and: [{
+    //                                         $eq: ["$userIdFrom", "$$userIdFrom"],
+    //                                     }]
+    //                                 },
+    //                                 userIdTo: new mongoose.Types.ObjectId(userIdFrom),
+    //                             }
+    //                         }
+    //                     ],
+    //                 },
+    //             },
+    //             {
+    //                 $lookup: {
+    //                     from: "friends",
+    //                     as: "isFriend",
+    //                     let: {
+    //                         idsToMap: '$_id',
+    //                     },
+    //                     pipeline: [
+    //                         {
+    //                             $match: {
+    //                                 // $expr: {
+    //                                 //     $and: [{
+    //                                 //         $eq: ["$usersId", "$$usersId"],
+    //                                 //     }]
+    //                                 // },
+    //                                 $expr: {
+    //                                     $in: ["$$idsToMap", "$usersId"],
+    //                                 },
+    //                                 // usersId: new mongoose.Types.ObjectId(userIdFrom),
+    //                                 // usersId: "$$usersId",
+    //                             }
+    //                         }
+    //                     ],
+    //                 },
+    //             },
 
-                {
-                    $addFields: {
-                      sended: { $gt: [{ $size: "$sended" }, 0] },
-                      received: { $gt: [{ $size: "$received" }, 0] },
-                      isFriend: { $gt: [{ $size: "$isFriend" }, 0] },
-                    }
-                }
-            ]);
-            if ( nameUserTo ) {
-                return resp.filter(item => item?.name === nameUserTo);
-            }
-            return resp;
-        };
+    //             {
+    //                 $addFields: {
+    //                   sended: { $gt: [{ $size: "$sended" }, 0] },
+    //                   received: { $gt: [{ $size: "$received" }, 0] },
+    //                   isFriend: { $gt: [{ $size: "$isFriend" }, 0] },
+    //                 }
+    //             }
+    //         ]);
+    //         if ( nameUserTo ) {
+    //             return resp.filter(item => item?.name === nameUserTo);
+    //         }
+    //         return resp;
+    //     };
 
-        return [];
+    //     return [];
+    // }
+
+    async findUsers( name ) {
+        const resp = await this.db.find();
+        if ( name ) {
+            return resp.filter(user => user.name.toLowerCase().includes(name?.toLowerCase()));
+        }
+        return resp;
     }
 
     async validateToken( token= '' ) {

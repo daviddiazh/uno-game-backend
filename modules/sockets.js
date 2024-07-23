@@ -1,6 +1,5 @@
 import { AuthService } from "../services/auth/index.js";
 import { verifyJwt } from '../middlewares/verify-jwt.js';
-import { FriendsService } from "../services/friends/index.js";
 
 class Sockets {
     constructor( io ) {
@@ -18,11 +17,15 @@ class Sockets {
                 return socket.disconnect();
             };
 
+            socket.join(_id);
+            
             await new AuthService().updateUserLogged( _id, true );
 
-            socket.join( _id );
+            this.io.emit('get-users-list', await new AuthService().findUsers());
 
-            this.io.emit( 'get-friends-list', await new FriendsService().friendsList({ userId: _id }) );
+            socket.on('get-users-list', async (name) => {
+                socket.emit('get-users-list', await new AuthService().findUsers(name));
+            });
 
             socket.on( 'mensaje-personal', async( payload ) => {
                 // const mensaje = await grabarMensaje( payload );
@@ -32,7 +35,7 @@ class Sockets {
             
             socket.on('disconnect', async() => {
                 await new AuthService().updateUserLogged( _id, false );
-                this.io.emit( 'get-friends-list', await new FriendsService().friendsList({ userId: _id }) );
+                this.io.emit('get-users-list', await new AuthService().findUsers());
             });
         });
     }
