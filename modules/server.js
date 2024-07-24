@@ -4,7 +4,8 @@ import { Server as SocketServer } from 'socket.io';
 import cors from 'cors';
 
 import passport from '../middlewares/passport.js';
-import Sockets from './sockets.js';
+import FriendsSockets from './sockets/friends.js';
+import GameSockets from './sockets/game.js';
 import { dbConnection } from './database.js';
 
 export class Server {
@@ -29,7 +30,8 @@ export class Server {
     }
 
     configureSockets() {
-        new Sockets( this.io );
+        new FriendsSockets( this.io );
+        new GameSockets( this.io );
     }
 
     execute() {

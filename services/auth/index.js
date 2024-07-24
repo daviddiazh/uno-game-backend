@@ -1,6 +1,5 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import mongoose from 'mongoose';
 import authSchema from '../../models/auth.js';
 import { verifyJwt } from '../../middlewares/verify-jwt.js';
 
@@ -179,6 +178,18 @@ export class AuthService {
         }
         return resp;
     }
+
+    async findById( _id ) {
+        try {
+            return await this.db.findById(_id);
+        } catch (error) {
+            return {
+                code: 401,
+                message: 'Error al encontrar el Usuario por el ID'
+            }
+        }
+    }
+
 
     async validateToken( token= '' ) {
         const { _id } = await verifyJwt(token);
